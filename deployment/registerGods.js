@@ -10,6 +10,19 @@ async function main() {
     const GodFactory = await ethers.getContractFactory("GOD");
     const God = GodFactory.attach(ADDR.God);
 
+    /* 
+    
+        struct Card {
+    bool initialized;
+    CardType cardType;
+    uint8 rangeX;
+    uint8 rangeY;
+    uint8 deployEnergy;
+    uint8 health;
+    uint8 points;
+}
+    */
+
     await God.connect(signer).registerType(1, [true, 0, 1, 1, 1, 4, 2]); // Warrior
     console.log("Warrior");
     await God.connect(signer).registerType(2, [true, 0, 3, 3, 1, 2, 1]); // Archer

@@ -82,6 +82,14 @@ contract Clash {
     Player playerTwo;
     Player currentPlayer;
 
+    function getAllCells() external view returns (Cell[] memory) {
+        Cell[] memory cellArray = new Cell[](_tableSize * _tableSize);
+        for (uint256 i = 0; i < cellArray.length; i++) {
+            cellArray[i] = gameBoard[i / 5][i % 5];
+        }
+        return cellArray;
+    }
+
     function getEnemyDeck() external view returns (uint8[] memory) {
         return msg.sender == playerOne.addr ? playerTwo.deck : playerOne.deck;
     }

@@ -125,7 +125,7 @@ contract Marketplace {
 
         require(
             godContract.balanceOf(msg.sender, cardType) -
-                godListings[msg.sender][cardType] <=
+                godListings[msg.sender][cardType] >=
                 amount,
             "User doesn't have enough cards"
         );

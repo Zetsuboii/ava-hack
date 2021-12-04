@@ -51,7 +51,7 @@ contract MatchMaker is Ownable {
     function registerToMatch(uint256 arenaId, uint8[] calldata deck) external {
         address boardOwner = arenaContract.ownerOf(arenaId);
 
-        require(boardOwner == address(0), "Board isn't owned by anyone");
+        require(boardOwner != address(0), "Board isn't owned by anyone");
         require(!inGame[msg.sender], "Player is already in game");
 
         WaitingPlayer memory waitingPlayer = arenaToPlayer[arenaId];

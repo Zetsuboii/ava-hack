@@ -5,7 +5,7 @@ const ethers = hardhat.ethers;
 describe("Game Utility", () => {
     const contractNames = ["Marketplace", "MatchMaker", "ARENA", "BILIRA", "GOD", "SONS", "XP"];
     let contracts = {}
-    let [signer, p1, p2];
+    let signer, p1, p2;
 
     const deploy = async (factory, ...args) => {
         return await factory.deploy(...args);
@@ -47,6 +47,7 @@ describe("Game Utility", () => {
 
     it("Plays a game", async () => {
         const { arena, bilira, god, sons, xp, marketplace, matchMaker } = contracts;
+        console.log(contracts);
 
         const Warrior = [true, 0, 1, 1, 1, 4, 2]
         const Archer = [true, 0, 3, 3, 1, 2, 1]

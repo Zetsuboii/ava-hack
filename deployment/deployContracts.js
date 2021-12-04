@@ -60,7 +60,16 @@ async function main() {
         "MatchMaker: '" + MatchMaker.address + "',\n" +
         "Marketplace: '" + Marketplace.address + "'\n}";
 
+    const addressesForTS = "{\n\tGodContract: '" + God.address + "',\n" +
+        "ArenaContract: '" + Arena.address + "',\n" +
+        "SonsContract: '" + Sons.address + "',\n" +
+        "XpContract: '" + XP.address + "',\n" +
+        "BiliraContract: '" + Bilira.address + "',\n" +
+        "MatchMakerContract: '" + MatchMaker.address + "',\n" +
+        "MarketplaceContract: '" + Marketplace.address + "'\n}";
+
     console.log(addresses);
+    console.log(addressesForTS);
 }
 
 main().then(() => {

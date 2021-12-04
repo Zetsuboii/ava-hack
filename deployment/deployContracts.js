@@ -56,7 +56,6 @@ async function main() {
         "Sons: '" + Sons.address + "',\n" +
         "XP: '" + XP.address + "',\n" +
         "Bilira: '" + Bilira.address + "',\n" +
-        "God: '" + God.address + "',\n" +
         "MatchMaker: '" + MatchMaker.address + "',\n" +
         "Marketplace: '" + Marketplace.address + "'\n}";
 

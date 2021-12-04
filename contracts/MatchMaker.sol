@@ -30,9 +30,9 @@ contract MatchMaker is Ownable {
     mapping(uint256 => WaitingPlayer) public arenaToPlayer;
     mapping(address => bool) public inGame;
 
-    event GameStarted(uint256 indexed gameId, address instance);
+    event GameStarted(uint256 gameId, address instance);
     event GameRegistered(uint256 gameId);
-    event WaitingLeave(uint256 gameId);
+    event WaitingLeave(uint256 gameId, address leavingPlayer);
 
     constructor(
         XP xpAddress,
@@ -130,6 +130,6 @@ contract MatchMaker is Ownable {
         delete inGame[msg.sender];
         delete arenaToPlayer[arenaId];
 
-        emit WaitingLeave(arenaId);
+        emit WaitingLeave(arenaId, msg.sender);
     }
 }

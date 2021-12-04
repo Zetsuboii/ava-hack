@@ -127,8 +127,8 @@ contract Clash {
         uint8[] memory deckTwo
     ) {
         require(
-            deckOne.length == arena.gameConstant * 2 &&
-                deckTwo.length == arena.gameConstant * 2,
+            deckOne.length == arena.gameConstant * 2 - 1 &&
+                deckTwo.length == arena.gameConstant * 2 - 1,
             "Deck size doesn't match game requirements"
         );
 

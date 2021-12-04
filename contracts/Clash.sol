@@ -460,17 +460,23 @@ contract Clash {
         uint256 allowance = tokenContract.allowance(_owner, address(this));
 
         // Winner payment
-        tokenContract.transferFrom(
-            _owner,
-            winner,
-            (allowance * _winnerPercent) / 1000 - flashLoans[winner]
+        require(
+            tokenContract.transferFrom(
+                _owner,
+                winner,
+                (allowance * _winnerPercent) / 1000 - flashLoans[winner]
+            ),
+            "Winner payment failed"
         );
 
         // Board owner payment
-        tokenContract.transferFrom(
-            _owner,
-            _boardOwner,
-            (allowance * _boardOwnerPercent) / 1000
+        require(
+            tokenContract.transferFrom(
+                _owner,
+                _boardOwner,
+                (allowance * _boardOwnerPercent) / 1000
+            ),
+            "Arena owner payment failed"
         );
 
         xpContract.mint(winner, WINNER_XP);

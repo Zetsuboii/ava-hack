@@ -9,7 +9,7 @@ import "./tokens/SONS.sol";
 import "./tokens/GOD.sol";
 
 enum TokenType {
-    FLASH,
+    SONS,
     BILIRA
 }
 

@@ -30,7 +30,7 @@ contract MatchMaker is Ownable {
     mapping(uint256 => WaitingPlayer) public arenaToPlayer;
     mapping(address => bool) public inGame;
 
-    event GameStarted(uint256 gameId);
+    event GameStarted(uint256 gameId, address instance);
     event GameRegistered(uint256 gameId);
     event WaitingLeave(uint256 gameId);
 
@@ -96,7 +96,9 @@ contract MatchMaker is Ownable {
                 "Game token approve failed"
             );
 
-            emit GameStarted(waitingPlayer.gameId);
+            emit GameStarted(waitingPlayer.gameId, address(instance));
+            delete inGame[msg.sender];
+            delete inGame[waitingPlayer.addr];
             delete arenaToPlayer[arenaId];
             return;
         }
@@ -108,6 +110,8 @@ contract MatchMaker is Ownable {
             deck: deck
         });
 
+        inGame[msg.sender] = true;
+
         emit GameRegistered(gameNonce);
     }
 
@@ -115,6 +119,12 @@ contract MatchMaker is Ownable {
         require(
             arenaToPlayer[arenaId].addr == msg.sender,
             "Address is not the waiting player"
+        );
+
+        (, , , uint256 entranceFee) = arenaContract.idToArenaDetails(arenaId);
+        require(
+            snsContract.approve(msg.sender, entranceFee),
+            "Entrance fee approve failed"
         );
 
         delete arenaToPlayer[arenaId];

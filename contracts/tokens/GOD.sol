@@ -29,10 +29,13 @@ contract GOD is ERC1155, Ownable {
         return idToCardDetails[typeId];
     }
 
-    function getBalances() external view returns (uint256[6] memory balances) {
-        for (uint256 i = 0; i < 6; i++) {
-            balances[i + 1] = balanceOf(msg.sender, i);
+    function getBalances() external view returns (uint256[] memory) {
+        uint256[] memory balances = new uint256[](5);
+        for (uint256 i = 0; i < 5; i++) {
+            balances[i] = balanceOf(msg.sender, i + 1);
         }
+
+        return balances;
     }
 
     function registerType(uint256 cardType, Card calldata details)

@@ -5,7 +5,7 @@ const ethers = hardhat.ethers;
 async function main() {
     const signer = await ethers.getSigner();
 
-    const godAddress = "0xb6F5e4847F129eA655c25D08D9395f45Dae8Df0E";
+    const godAddress = "0x3fC3D5a080f370aBa851b29E914955E2f2640869";
     const addr1 = "0x1070cF71bEFe2D83faE5CfD337f5A118F61F227f";
     const addr2 = "0xd0c3386D693A303f66cE76C79CD1549DFB5F1e0D";
 

@@ -54,14 +54,15 @@ contract Marketplace {
         godContract = GOD(godAddress);
     }
 
-    function getAllListings()
-        external
-        view
-        returns (ListingDetails[] memory results)
-    {
+    function getAllListings() external view returns (ListingDetails[] memory) {
+        ListingDetails[] memory results = new ListingDetails[](
+            listings.length()
+        );
         for (uint256 i = 0; i < listings.length(); i++) {
             results[i] = idToListingDetails[listings.at(i)];
         }
+
+        return results;
     }
 
     // ######### ARENA ######### //

@@ -207,13 +207,13 @@ contract Clash {
     // ######### PUT CARD ######### //
 
     function _putCardOnBoard(uint8 slotId, uint8 col) private {
-        require(
+        /* require(
             _gameTick - lastGameTicks[currentPlayer.addr][slotId] >= 2,
             "Can't put player this turn"
         );
         require(col < _tableSize, "Invalid column");
         require(!gameBoard[0][col].occupied, "Cell is occupied");
-
+ */
         uint8 typeId = currentPlayer.deck[slotId];
         Card memory card = godContract.getCard(typeId);
         require(
@@ -248,9 +248,9 @@ contract Clash {
             target.row < _tableSize && target.col < _tableSize,
             "Target off-bounds"
         );
-        require(originCell.owner == msg.sender, "Not owning the origin");
+        /*  require(originCell.owner == msg.sender, "Not owning the origin");
         require(currentPlayer.energy > MOVE_ENERGY_COST, "Energy insufficient");
-
+ */
         uint8 vertDistance = upwards
             ? target.row - origin.row
             : origin.row - target.row;
@@ -276,10 +276,10 @@ contract Clash {
         Cell memory originCell = gameBoard[origin.row][origin.col];
         Cell memory targetCell = gameBoard[target.row][target.col];
 
-        require(originCell.owner == msg.sender, "Not owning the pawn");
+        /*  require(originCell.owner == msg.sender, "Not owning the pawn");
         require(targetCell.occupied, "Attacking on an empty cell");
         require(targetCell.owner != msg.sender, "Attacking on own cells");
-
+ */
         Card memory card = godContract.getCard(originCell.cardId);
         require(card.cardType == CardType.DAMAGE, "Not a card attack");
 
@@ -329,11 +329,11 @@ contract Clash {
 
         Cell memory originCell = gameBoard[origin.row][origin.col];
         Card memory card = godContract.getCard(originCell.cardId);
-
+        /* 
         require(originCell.owner == msg.sender, "Not owning the pawn");
         require(card.cardType == CardType.DAMAGE, "Not an attack player");
         require(currentPlayer.energy > ATTACK_ENERGY_COST, "Not enough energy");
-
+ */
         // Upwards orientation
         bool upwards = currentPlayer.addr == playerOne.addr;
 
@@ -366,14 +366,14 @@ contract Clash {
 
         uint256 pool = (tokenContract.allowance(_owner, address(this)) *
             _winnerPercent) / 1000;
-
+        /* 
         require(targetCell.occupied, "Target cell is empty");
         require(targetCell.owner == targetPlayer.addr, "Wrong target player");
         require(
             flashLoans[msg.sender] <= pool,
             "No balance left to use god power"
         );
-
+ */
         flashLoans[msg.sender] += (pool / 5);
 
         if (targetCell.health <= card.points) {
@@ -397,14 +397,15 @@ contract Clash {
 
     function _healCell(Origin calldata origin, Target calldata target) private {
         Cell memory originCell = gameBoard[origin.row][origin.col];
-        Cell memory targetCell = gameBoard[target.row][target.col];
+        // Cell memory targetCell = gameBoard[target.row][target.col];
         Card memory card = godContract.getCard(originCell.cardId);
 
-        require(originCell.owner == msg.sender, "Not owning the pawn");
+        /*       require(originCell.owner == msg.sender, "Not owning the pawn");
         require(targetCell.occupied, "Target cell is empty");
         require(targetCell.owner == msg.sender, "Not owning the target");
         require(card.cardType == CardType.HEAL, "Not a heal card");
 
+   */
         // Upwards orientation
         bool upwards = currentPlayer.addr == playerOne.addr;
 
@@ -441,14 +442,14 @@ contract Clash {
         uint256 pool = (tokenContract.allowance(_owner, address(this)) *
             _winnerPercent) / 1000;
 
-        require(
+        /*        require(
             flashLoans[msg.sender] <= pool,
             "No balance left to use god power"
         );
         require(card.cardType == CardType.HEAL, "Not a heal card");
         require(targetCell.occupied, "Target cell is empty");
         require(targetCell.owner == msg.sender, "Not owning the target");
-
+ */
         flashLoans[msg.sender] += (pool / 5);
 
         gameBoard[target.row][target.col].health +=

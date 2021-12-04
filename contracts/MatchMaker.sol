@@ -57,7 +57,7 @@ contract MatchMaker is Ownable {
         address boardOwner = arenaContract.ownerOf(arenaId);
 
         require(boardOwner != address(0), "Board isn't owned by anyone");
-        require(!inGame[msg.sender], "Player is already in game");
+        // require(!inGame[msg.sender], "Player is already in game");
 
         WaitingPlayer memory waitingPlayer = arenaToPlayer[arenaId];
         (
@@ -122,10 +122,10 @@ contract MatchMaker is Ownable {
     }
 
     function leaveGame(uint256 arenaId) external {
-        require(
+        /* require(
             arenaToPlayer[arenaId].addr == msg.sender,
             "Address is not the waiting player"
-        );
+        ); */
 
         (, , , uint256 entranceFee) = arenaContract.idToArenaDetails(arenaId);
         require(

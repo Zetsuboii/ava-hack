@@ -48,19 +48,19 @@ contract MatchMaker is Ownable {
         biliraContract = BILIRA(biliraAddress);
     }
 
-    function registerToMatch(uint256 boardId, uint8[] calldata deck) external {
-        address boardOwner = arenaContract.ownerOf(boardId);
+    function registerToMatch(uint256 arenaId, uint8[] calldata deck) external {
+        address boardOwner = arenaContract.ownerOf(arenaId);
 
         require(boardOwner == address(0), "Board isn't owned by anyone");
         require(!inGame[msg.sender], "Player is already in game");
 
-        WaitingPlayer memory waitingPlayer = arenaToPlayer[boardId];
+        WaitingPlayer memory waitingPlayer = arenaToPlayer[arenaId];
         (
             uint8 gameConstant,
             uint16 winnerPercent,
             uint16 ownerPercent,
             uint256 entranceFee
-        ) = arenaContract.idToArenaDetails(boardId);
+        ) = arenaContract.idToArenaDetails(arenaId);
 
         require(
             deck.length == gameConstant * 2 - 1,
@@ -73,6 +73,7 @@ contract MatchMaker is Ownable {
         );
 
         if (waitingPlayer.exists) {
+            // Last player to join starts first
             Clash instance = new Clash({
                 arenaOwner: boardOwner,
                 arena: ArenaDetails(
@@ -84,10 +85,10 @@ contract MatchMaker is Ownable {
                 xpAddress: xpContract,
                 sonsAddress: snsContract,
                 godAddress: godContract,
-                addressOne: waitingPlayer.addr,
-                addressTwo: msg.sender,
-                deckOne: waitingPlayer.deck,
-                deckTwo: deck
+                addressOne: msg.sender,
+                addressTwo: waitingPlayer.addr,
+                deckOne: deck,
+                deckTwo: waitingPlayer.deck
             });
 
             require(
@@ -96,11 +97,11 @@ contract MatchMaker is Ownable {
             );
 
             emit GameStarted(waitingPlayer.gameId);
-            delete arenaToPlayer[boardId];
+            delete arenaToPlayer[arenaId];
             return;
         }
 
-        arenaToPlayer[boardId] = WaitingPlayer({
+        arenaToPlayer[arenaId] = WaitingPlayer({
             exists: true,
             gameId: gameNonce++,
             addr: msg.sender,

@@ -51,14 +51,14 @@ async function main() {
     await MatchMaker.deployed();
     console.log("MatchMaker deployed");
 
-    const addresses = "God: " + God.address + "\n" +
-        "Arena: " + Arena.address + "\n" +
-        "Sons: " + Sons.address + "\n" +
-        "XP: " + XP.address + "\n" +
-        "Bilira: " + Bilira.address + "\n" +
-        "God: " + God.address + "\n" +
-        "MatchMaker: " + MatchMaker.address + "\n" +
-        "Marketplace: " + Marketplace.address + "\n";
+    const addresses = "{\n\tGod: '" + God.address + "',\n" +
+        "Arena: '" + Arena.address + "',\n" +
+        "Sons: '" + Sons.address + "',\n" +
+        "XP: '" + XP.address + "',\n" +
+        "Bilira: '" + Bilira.address + "',\n" +
+        "God: '" + God.address + "',\n" +
+        "MatchMaker: '" + MatchMaker.address + "',\n" +
+        "Marketplace: '" + Marketplace.address + "'\n}";
 
     console.log(addresses);
 }

@@ -127,6 +127,7 @@ contract MatchMaker is Ownable {
             "Entrance fee approve failed"
         );
 
+        delete inGame[msg.sender];
         delete arenaToPlayer[arenaId];
 
         emit WaitingLeave(arenaId);

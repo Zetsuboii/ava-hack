@@ -1,17 +1,19 @@
 const { hardhat } = require("hardhat");
+const { expect } = require("chai");
 const ethers = hardhat.ethers;
 
 describe("Game Utility", () => {
     const contractNames = ["Marketplace", "MatchMaker", "ARENA", "BILIRA", "GOD", "SONS", "XP"];
     let contracts = {}
-    let signer;
+    let [signer, p1, p2];
 
     const deploy = async (factory, ...args) => {
         return await factory.deploy(...args);
     };
 
-    beforeAll(async () => {
-        const [signer, p1, p2] = await ethers.getSigners();
+    beforeEach(async () => {
+
+        [signer, p1, p2] = await ethers.getSigners();
 
         contractFactories = await Promise.all(contractNames.map(name =>
             ethers.getContractFactory(name).then(ctc => ctc.deployed())
@@ -64,6 +66,11 @@ describe("Game Utility", () => {
         god.registerType(4, Healer);
         god.registerType(5, Titan);
 
-        arena.mint();
+        arena.mint(signer.address, 1, Arena1);
+        arena.mint(signer.address, 2, Arena2);
+        arena.mint(signer.address, 3, Arena3);
+        arena.mint(signer.address, 4, Arena4);
+
+        expect(arena.balanceOf(signer.address)).to.be.eq(4);
     })
 });

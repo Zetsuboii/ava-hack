@@ -2,14 +2,13 @@ const fs = require("fs");
 const hardhat = require("hardhat");
 const ethers = hardhat.ethers;
 
+const ADDR = require("./addresses");
+
 async function main() {
     const signer = await ethers.getSigner();
 
-    const godAddress = "0x3fC3D5a080f370aBa851b29E914955E2f2640869";
-
-
     const GodFactory = await ethers.getContractFactory("GOD");
-    const God = GodFactory.attach(godAddress);
+    const God = GodFactory.attach(ADDR.God);
 
     await God.connect(signer).registerType(1, [true, 0, 1, 1, 1, 4, 2]); // Warrior
     console.log("Warrior");

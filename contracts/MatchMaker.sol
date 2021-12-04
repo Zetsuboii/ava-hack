@@ -32,7 +32,6 @@ contract MatchMaker is Ownable {
 
     uint256 gameNonce = 0;
 
-    mapping(address => Instance) public addressToInstance;
     mapping(uint256 => WaitingPlayer) public arenaToPlayer;
     mapping(address => bool) public inGame;
 
@@ -52,10 +51,6 @@ contract MatchMaker is Ownable {
         snsContract = SONS(sonsAddress);
         godContract = GOD(playerAddress);
         biliraContract = BILIRA(biliraAddress);
-    }
-
-    function getInstance() external view returns (Instance memory) {
-        return addressToInstance[msg.sender];
     }
 
     function registerToMatch(uint256 arenaId, uint8[] calldata deck) external {
@@ -106,12 +101,8 @@ contract MatchMaker is Ownable {
                 "Game token approve failed"
             );
 
-            // emit GameStarted(waitingPlayer.gameId, address(instance));
+            emit GameStarted(waitingPlayer.gameId, address(instance));
 
-            addressToInstance[msg.sender] = Instance(
-                address(instance),
-                waitingPlayer.gameId
-            );
             delete inGame[msg.sender];
             delete inGame[waitingPlayer.addr];
             delete arenaToPlayer[arenaId];

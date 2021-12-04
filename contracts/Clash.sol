@@ -82,6 +82,10 @@ contract Clash {
     Player playerTwo;
     Player currentPlayer;
 
+    function getEnemyDeck() external view returns (uint8[] memory) {
+        return msg.sender == playerOne.addr ? playerTwo.deck : playerOne.deck;
+    }
+
     // Player => cardIdx => lastGameTick
     mapping(address => mapping(uint8 => uint16)) lastGameTicks;
     mapping(address => uint256) public flashLoans;

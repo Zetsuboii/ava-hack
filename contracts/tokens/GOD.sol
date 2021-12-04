@@ -25,6 +25,7 @@ contract GOD is ERC1155, Ownable {
     mapping(uint256 => Card) public idToCardDetails;
 
     function getCard(uint256 typeId) external view returns (Card memory) {
+        require(idToCardDetails[typeId].initialized, "Card doesn't exists");
         return idToCardDetails[typeId];
     }
 

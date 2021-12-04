@@ -11,7 +11,7 @@ struct ArenaDetails {
     uint256 entranceFee;
 }
 
-contract Arena is ERC721, Ownable {
+contract ARENA is ERC721, Ownable {
     mapping(uint256 => ArenaDetails) public idToArenaDetails;
 
     event ArenaMinted(address to, uint256 tokenId);

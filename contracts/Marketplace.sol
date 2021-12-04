@@ -32,43 +32,49 @@ contract Marketplace {
     using EnumerableSet for EnumerableSet.UintSet;
 
     address biliraAddress;
-    address flashAddress;
+    address snsAddress;
 
-    AREAN arenaContract;
-    SONS snsContract;
-    GOD playerContract;
+    ARENA arenaContract;
+    GOD godContract;
 
     uint256 nonce = 0;
     EnumerableSet.UintSet private listings;
     mapping(uint256 => ListingDetails) public idToListingDetails;
-    mapping(address => mapping(uint256 => uint256))
-        private addressToPlayerListings;
+    mapping(address => mapping(uint256 => uint256)) private godListings;
 
     constructor(
-        BOARD boardAddress,
-        address tokenAddress,
-        GOD playerAddress
+        ARENA arenaAddress,
+        GOD godAddress,
+        address sons,
+        address bilira
     ) {
-        flashAddress = tokenAddress;
-        boardContract = BOARD(boardAddress);
-        playerContract = GOD(playerAddress);
+        snsAddress = sons;
+        biliraAddress = bilira;
+        arenaContract = ARENA(arenaAddress);
+        godContract = GOD(godAddress);
     }
 
-    function getAllListings() external view returns (uint256[] memory results) {
+    function getAllListings()
+        external
+        view
+        returns (ListingDetails[] memory results)
+    {
         for (uint256 i = 0; i < listings.length(); i++) {
-            results[i] = listings.at(i);
+            results[i] = idToListingDetails[listings.at(i)];
         }
     }
 
-    function listBoard(
-        uint256 boardId,
+    // ######### ARENA ######### //
+
+    function listArena(
+        uint256 arenaId,
         TokenType token,
         uint256 price
     ) external {
-        uint256 listingId = uint256(keccak256(abi.encode(boardId)));
+        uint256 listingId = uint256(keccak256(abi.encode(arenaId)));
 
         require(
-            boardContract.ownerOf(boardId) == msg.sender,
+            arenaContract.ownerOf(arenaId) == msg.sender,
             "Account not owner of NFT"
         );
         require(
@@ -79,8 +85,8 @@ contract Marketplace {
         idToListingDetails[listingId] = ListingDetails({
             initialized: true,
             amount: 1,
-            asset: AssetType.BOARD,
-            assetId: boardId,
+            asset: AssetType.ARENA,
+            assetId: arenaId,
             owner: msg.sender,
             token: token,
             price: price
@@ -89,37 +95,36 @@ contract Marketplace {
         listings.add(listingId);
     }
 
-    function delistBoard(uint256 listingId) external {
-        require(
-            idToListingDetails[listingId].initialized,
-            "Listing doesn't exist"
-        );
+    function removeListing(uint256 listingId) external {
+        ListingDetails memory details = idToListingDetails[listingId];
 
-        require(
-            idToListingDetails[listingId].owner == msg.sender,
-            "Account not owner of NFT"
-        );
+        require(details.initialized, "Listing doesn't exist");
+
+        require(details.owner == msg.sender, "Account not owner of NFT");
+
+        if (details.asset == AssetType.ARENA)
+            godListings[msg.sender][details.assetId] -= details.amount;
 
         delete idToListingDetails[listingId];
         listings.remove(listingId);
     }
 
-    // PLAYER
+    // ######### GODS ######### //
 
-    function listPlayer(
+    function listGod(
         uint256 cardType,
         uint16 amount,
         TokenType token,
         uint256 price
     ) external {
         require(
-            playerContract.isApprovedForAll(msg.sender, address(this)),
+            godContract.isApprovedForAll(msg.sender, address(this)),
             "Contract isn't approved"
         );
 
         require(
-            playerContract.balanceOf(msg.sender, cardType) -
-                addressToPlayerListings[msg.sender][cardType] <=
+            godContract.balanceOf(msg.sender, cardType) -
+                godListings[msg.sender][cardType] <=
                 amount,
             "User doesn't have enough cards"
         );
@@ -135,28 +140,15 @@ contract Marketplace {
         idToListingDetails[listingId] = ListingDetails({
             initialized: true,
             assetId: cardType,
-            asset: AssetType.PLAYER,
+            asset: AssetType.GOD,
             owner: msg.sender,
             token: token,
             price: price,
             amount: amount
         });
 
-        addressToPlayerListings[msg.sender][cardType] += amount;
+        godListings[msg.sender][cardType] += amount;
         listings.add(listingId);
-    }
-
-    function delistPlayer(uint256 listingId) external {
-        ListingDetails memory details = idToListingDetails[listingId];
-
-        require(details.initialized, "Listing doesn't exist");
-
-        require(details.owner == msg.sender, "Account not owner of NFT");
-
-        addressToPlayerListings[msg.sender][details.assetId] -= details.amount;
-
-        delete idToListingDetails[listingId];
-        listings.remove(listingId);
     }
 
     function buyListing(uint256 listingId) external {
@@ -165,7 +157,7 @@ contract Marketplace {
         require(details.initialized, "Listing doesn't exist");
 
         IERC20 tokenToPay = IERC20(
-            details.token == TokenType.BILIRA ? biliraAddress : flashAddress
+            details.token == TokenType.BILIRA ? biliraAddress : snsAddress
         );
 
         require(
@@ -173,14 +165,14 @@ contract Marketplace {
             "Token transfer failed"
         );
 
-        if (details.asset == AssetType.BOARD) {
-            boardContract.transferFrom(
+        if (details.asset == AssetType.ARENA) {
+            arenaContract.transferFrom(
                 details.owner,
                 msg.sender,
                 details.assetId
             );
-        } else if (details.asset == AssetType.PLAYER) {
-            playerContract.safeTransferFrom(
+        } else if (details.asset == AssetType.GOD) {
+            godContract.safeTransferFrom(
                 details.owner,
                 msg.sender,
                 details.assetId,
@@ -188,8 +180,7 @@ contract Marketplace {
                 ""
             );
 
-            addressToPlayerListings[details.owner][details.assetId] -= details
-                .amount;
+            godListings[details.owner][details.assetId] -= details.amount;
         }
 
         delete idToListingDetails[listingId];

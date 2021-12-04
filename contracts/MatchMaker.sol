@@ -3,10 +3,11 @@ pragma solidity 0.8.7;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-import "./Game.sol";
+import "./Clash.sol";
 // tokens
-import "./tokens/BOARD.sol";
-import "./tokens/FLASH.sol";
+import "./tokens/BILIRA.sol";
+import "./tokens/ARENA.sol";
+import "./tokens/SONS.sol";
 import "./tokens/GOD.sol";
 import "./tokens/XP.sol";
 
@@ -19,43 +20,47 @@ struct WaitingPlayer {
 
 contract MatchMaker is Ownable {
     XP xpContract;
-    BOARD boardContract;
-    FLASH tokenContract;
-    GOD playerContract;
+    ARENA arenaContract;
+    SONS snsContract;
+    GOD godContract;
+    BILIRA biliraContract;
 
     uint256 gameNonce = 0;
 
-    mapping(uint256 => WaitingPlayer) public boardToPlayer;
+    mapping(uint256 => WaitingPlayer) public arenaToPlayer;
     mapping(address => bool) public inGame;
 
     event GameStarted(uint256 gameId);
     event GameRegistered(uint256 gameId);
+    event WaitingLeave(uint256 gameId);
 
     constructor(
         XP xpAddress,
-        BOARD boardAddress,
-        FLASH tokenAddress,
+        ARENA arenaAddress,
+        SONS sonsAddress,
+        BILIRA biliraAddress,
         GOD playerAddress
     ) {
         xpContract = XP(xpAddress);
-        boardContract = BOARD(boardAddress);
-        tokenContract = FLASH(tokenAddress);
-        playerContract = GOD(playerAddress);
+        arenaContract = ARENA(arenaAddress);
+        snsContract = SONS(sonsAddress);
+        godContract = GOD(playerAddress);
+        biliraContract = BILIRA(biliraAddress);
     }
 
     function registerToMatch(uint256 boardId, uint8[] calldata deck) external {
-        address boardOwner = boardContract.ownerOf(boardId);
+        address boardOwner = arenaContract.ownerOf(boardId);
 
         require(boardOwner == address(0), "Board isn't owned by anyone");
         require(!inGame[msg.sender], "Player is already in game");
 
-        WaitingPlayer memory waitingPlayer = boardToPlayer[boardId];
+        WaitingPlayer memory waitingPlayer = arenaToPlayer[boardId];
         (
             uint8 gameConstant,
             uint16 winnerPercent,
             uint16 ownerPercent,
             uint256 entranceFee
-        ) = boardContract.idToBoardDetails(boardId);
+        ) = arenaContract.idToArenaDetails(boardId);
 
         require(
             deck.length == gameConstant * 2 - 1,
@@ -63,38 +68,39 @@ contract MatchMaker is Ownable {
         );
 
         require(
-            tokenContract.transferFrom(msg.sender, address(this), entranceFee),
+            snsContract.transferFrom(msg.sender, address(this), entranceFee),
             "Fee payment failed"
         );
 
         if (waitingPlayer.exists) {
-            Game instance = new Game({
-                boardOwner: boardOwner,
-                boardDetails: BoardDetails(
+            Clash instance = new Clash({
+                arenaOwner: boardOwner,
+                arena: ArenaDetails(
                     gameConstant,
                     winnerPercent,
                     ownerPercent,
                     entranceFee
                 ),
                 xpAddress: xpContract,
-                flashAddress: tokenContract,
-                addrOne: waitingPlayer.addr,
-                addrTwo: msg.sender,
+                sonsAddress: snsContract,
+                godAddress: godContract,
+                addressOne: waitingPlayer.addr,
+                addressTwo: msg.sender,
                 deckOne: waitingPlayer.deck,
                 deckTwo: deck
             });
 
             require(
-                tokenContract.approve(address(instance), 2 * entranceFee),
+                snsContract.approve(address(instance), 2 * entranceFee),
                 "Game token approve failed"
             );
 
             emit GameStarted(waitingPlayer.gameId);
-            delete boardToPlayer[boardId];
+            delete arenaToPlayer[boardId];
             return;
         }
 
-        boardToPlayer[boardId] = WaitingPlayer({
+        arenaToPlayer[boardId] = WaitingPlayer({
             exists: true,
             gameId: gameNonce++,
             addr: msg.sender,
@@ -104,5 +110,14 @@ contract MatchMaker is Ownable {
         emit GameRegistered(gameNonce);
     }
 
-    // TODO: Leave Game
+    function leaveGame(uint256 arenaId) external {
+        require(
+            arenaToPlayer[arenaId].addr == msg.sender,
+            "Address is not the waiting player"
+        );
+
+        delete arenaToPlayer[arenaId];
+
+        emit WaitingLeave(arenaId);
+    }
 }

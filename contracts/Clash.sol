@@ -3,8 +3,8 @@ pragma solidity 0.8.7;
 
 // Tokens
 import "./tokens/GOD.sol";
-import "./tokens/BOARD.sol";
-import "./tokens/FLASH.sol";
+import "./tokens/ARENA.sol";
+import "./tokens/SONS.sol";
 import "./tokens/XP.sol";
 
 enum MoveType {
@@ -75,7 +75,7 @@ contract Clash {
     address private _currentPlayer;
 
     XP xpContract;
-    FLASH tokenContract;
+    SONS tokenContract;
     GOD godContract;
 
     Player playerOne;
@@ -117,56 +117,46 @@ contract Clash {
 
     constructor(
         XP xpAddress,
-        FLASH tokenAddress,
+        SONS sonsAddress,
         GOD godAddress,
-        BoardDetails memory board,
-        address boardOwner,
+        ArenaDetails memory arena,
+        address arenaOwner,
         address addressOne,
         address addressTwo,
         uint8[] memory deckOne,
         uint8[] memory deckTwo
     ) {
         require(
-            deckOne.length == board.gameConstant * 2 &&
-                deckTwo.length == board.gameConstant * 2,
+            deckOne.length == arena.gameConstant * 2 &&
+                deckTwo.length == arena.gameConstant * 2,
             "Deck size doesn't match game requirements"
         );
 
         xpContract = XP(xpAddress);
-        tokenContract = FLASH(tokenAddress);
+        tokenContract = SONS(sonsAddress);
         godContract = GOD(godAddress);
 
         playerOne = Player({
             health: _baseHealth(xpContract.balances(addressOne)),
-            energy: board.gameConstant,
+            energy: arena.gameConstant,
             addr: addressOne,
             deck: deckOne
         });
 
         playerTwo = Player({
             health: _baseHealth(xpContract.balances(addressTwo)),
-            energy: board.gameConstant,
+            energy: arena.gameConstant,
             addr: addressTwo,
             deck: deckTwo
         });
 
         // Set immutables
         _owner = msg.sender;
-        _boardOwner = boardOwner;
-        _boardOwnerPercent = board.ownerPercent;
-        _winnerPercent = board.winnerPercent;
-        _energyPerRound = board.gameConstant;
-        _tableSize = board.gameConstant * 2 - 1;
-    }
-
-    // ######### CALCULATION HELPERS ######### //
-
-    function _baseHealth(uint256 xp) private pure returns (uint8) {
-        if (xp < 100) return 10;
-        if (xp < 450) return 15;
-        if (xp < 1050) return 20;
-        if (xp < 4350) return 25;
-        return 30; // 4350+
+        _boardOwner = arenaOwner;
+        _boardOwnerPercent = arena.ownerPercent;
+        _winnerPercent = arena.winnerPercent;
+        _energyPerRound = arena.gameConstant;
+        _tableSize = arena.gameConstant * 2 - 1;
     }
 
     function playTurn(Move[] calldata moves) external rightTurn {
@@ -487,6 +477,16 @@ contract Clash {
         xpContract.mint(loser, LOSER_XP);
 
         emit GameFinished(winner);
+    }
+
+    // ######### CALCULATION HELPERS ######### //
+
+    function _baseHealth(uint256 xp) private pure returns (uint8) {
+        if (xp < 100) return 10;
+        if (xp < 450) return 15;
+        if (xp < 1050) return 20;
+        if (xp < 4350) return 25;
+        return 30; // 4350+
     }
 
     // TODO: Timeout functions

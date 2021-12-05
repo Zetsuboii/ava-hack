@@ -7,7 +7,7 @@ const ADDR = require("./addresses");
 async function main() {
     const signer = await ethers.getSigner();
 
-    const addr1 = "0x1070cF71bEFe2D83faE5CfD337f5A118F61F227f";
+    const addr1 = "0x462E91b89082C7F465D9ffAec3559CAe38c056F3";
     const addr2 = "0xd0c3386D693A303f66cE76C79CD1549DFB5F1e0D";
 
     const GodFactory = await ethers.getContractFactory("GOD");
@@ -15,6 +15,7 @@ async function main() {
 
     await God.connect(signer).mintBatch(addr1, [1, 2, 3, 4, 5], [5, 5, 5, 5, 5], ethers.utils.toUtf8Bytes(""));
     await God.connect(signer).mintBatch(addr2, [1, 2, 3, 4, 5], [5, 5, 5, 5, 5], ethers.utils.toUtf8Bytes(""));
+    await God.connect(signer).mintBatch(signer.address, [1, 2, 3, 4, 5], [5, 5, 5, 5, 5], ethers.utils.toUtf8Bytes(""));
 
     console.log("Done");
 }
